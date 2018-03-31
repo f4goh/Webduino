@@ -43,12 +43,14 @@ char* System::uptime()
   return retval;
 }
 
+/*
 int System::ramFree () {
   extern int __heap_start, *__brkval; 
   int v;
   int a = (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
   return a;
 }
+*/
 
 int System::ramSize() {
   int v;

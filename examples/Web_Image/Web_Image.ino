@@ -2,27 +2,28 @@
 /* For webduino version 1.2 */
 
 /* DISCLAIMER -- the Webduino server can only handle one web connection
- * at a time.  Because of this, loading the root page on this sketch may
- * not correctly show the LED icon if the browser starts requesting that
- * picture before the page has finished loading.
- *
- * This problem should be reduced greatly once the Ethernet library
- * has been modified to do proper packet buffering.  With the library
- * in Arduino 15, each character is sent in its own TCP/IP packet.
- * This is very inefficient and means that it takes much longer to
- * send a web page than it should.  When this bug is fixed, the web
- * server will have sent its last data and closed the connection by
- * the time the client reads the HTML, so it's ready to handle the
- * image request.
- */
+   at a time.  Because of this, loading the root page on this sketch may
+   not correctly show the LED icon if the browser starts requesting that
+   picture before the page has finished loading.
 
-#include "SPI.h"
-#include "Ethernet.h"
+   This problem should be reduced greatly once the Ethernet library
+   has been modified to do proper packet buffering.  With the library
+   in Arduino 15, each character is sent in its own TCP/IP packet.
+   This is very inefficient and means that it takes much longer to
+   send a web page than it should.  When this bug is fixed, the web
+   server will have sent its last data and closed the connection by
+   the time the client reads the HTML, so it's ready to handle the
+   image request.
+*/
+
+#include <LwIP.h>
+#include <STM32Ethernet.h>
 #include "WebServer.h"
+
 
 // CHANGE THIS TO YOUR OWN UNIQUE VALUE
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-static uint8_t ip[] = { 192, 168, 1, 210 };
+//IPAddress ip(192, 168, 1, 177);
 
 WebServer webserver("", 80);
 
@@ -43,7 +44,7 @@ void defaultCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
   if (type == WebServer::GET)
   {
     /* store the HTML in program memory using the P macro */
-    P(message) = 
+    P(message) =
       "<html><head><title>Webduino Image Example</title>"
       "<body>"
       "<h2>LED Image</h2>"
@@ -57,7 +58,7 @@ void defaultCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 void imageCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
   /* this data was taken from a PNG file that was converted to a C data structure
-   * by running it through the directfb-csource application. */
+     by running it through the directfb-csource application. */
   P(ledData) = {
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
     0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x10, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x91, 0x68,
@@ -96,11 +97,14 @@ void imageCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 
 void setup()
 {
+  Serial.begin(9600);
   // setup the Ehternet library to talk to the Wiznet board
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac);
+  //Ethernet.begin(mac, ip);
+
 
   /* register our default command (activated with the request of
-   * http://x.x.x.x/ */
+     http://x.x.x.x/ */
   webserver.setDefaultCommand(&defaultCmd);
 
   /* register our image output command */
@@ -108,6 +112,8 @@ void setup()
 
   /* start the server to wait for connections */
   webserver.begin();
+  Serial.print("Web server is at ");
+  Serial.println(Ethernet.localIP());
 }
 
 void loop()

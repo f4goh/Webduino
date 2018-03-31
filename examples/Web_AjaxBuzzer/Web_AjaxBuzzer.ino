@@ -1,14 +1,14 @@
 /* Web_Buzzer.pde - example sketch for Webduino library */
 
-#include "SPI.h"
-#include "Ethernet.h"
+#include <LwIP.h>
+#include <STM32Ethernet.h>
 #include "WebServer.h"
 
 // CHANGE THIS TO YOUR OWN UNIQUE VALUE
 static uint8_t mac[6] = { 0x02, 0xAA, 0xBB, 0xCC, 0x00, 0x22 };
 
 // CHANGE THIS TO MATCH YOUR HOST NETWORK
-static uint8_t ip[4] = { 192, 168, 1, 210 }; // area 51!
+//IPAddress ip(192, 168, 1, 177);
 
 /* all URLs on this server will start with /buzz because of how we
  * define the PREFIX value.  We also will listen on port 80, the
@@ -96,11 +96,14 @@ void buzzCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
 
 void setup()
 {
+   Serial.begin(9600);
   // set the PWM output for the buzzer to out
   pinMode(BUZZER_PIN, OUTPUT);
 
   // setup the Ehternet library to talk to the Wiznet board
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac);
+  //Ethernet.begin(mac, ip);
+  
 
   /* register our default command (activated with the request of
    * http://x.x.x.x/buzz */
@@ -108,6 +111,8 @@ void setup()
 
   /* start the server to wait for connections */
   webserver.begin();
+  Serial.print("Web server is at "); 
+  Serial.println(Ethernet.localIP());
 }
 
 void loop()

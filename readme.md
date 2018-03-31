@@ -2,6 +2,11 @@
 
 This is an Arduino-based Web Server library, originally developed for a class at NYC Resistor. It's called Webduino, and it's an extensible web server library for the Arduino using the Wiznet-based Ethernet shields. It's released under the MIT license allowing all sorts of reuse.
 
+Modify for 
+[NUCLEO-F429ZI](http://www.st.com/en/evaluation-tools/nucleo-f429zi.html)
+with [STM32duino](https://github.com/stm32duino)
+
+
 ## Features
 
 - URL parameter parsing

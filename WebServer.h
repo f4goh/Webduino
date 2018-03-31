@@ -29,9 +29,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <Ethernet.h>
-#include <EthernetClient.h>
-#include <EthernetServer.h>
+
+#include <LwIP.h>
+#include <STM32Ethernet.h>
+
+
 
 /********************************************************************
  * CONFIGURATION
@@ -62,7 +64,7 @@
 #endif
 
 #ifndef WEBDUINO_FAIL_MESSAGE
-#define WEBDUINO_FAIL_MESSAGE "<h1>EPIC FAIL</h1>"
+#define WEBDUINO_FAIL_MESSAGE "<h1>Page not found</h1>"
 #endif
 
 #ifndef WEBDUINO_AUTH_REALM

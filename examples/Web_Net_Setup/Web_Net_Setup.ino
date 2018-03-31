@@ -64,15 +64,18 @@ For more informations about EEPROMAnything.h look at http://playground.arduino.c
 
 
 #define WEBDUINO_FAVICON_DATA "" // no favicon
-//#define DEBUG  //uncomment for serial debug output
-#define USE_SYSTEM_LIBRARY //comment out if you want to save some space (about 1 Byte). You wouldn't see uptime and free RAM if it's commented out.
+#define DEBUG  //uncomment for serial debug output
+//#define USE_SYSTEM_LIBRARY //comment out if you want to save some space (about 1 Byte). You wouldn't see uptime and free RAM if it's commented out.
 #define SERIAL_BAUD 9600
 
 
-#include "SPI.h" // new include
+
 #include "avr/pgmspace.h" // new include
-#include "Ethernet.h"
+#include <LwIP.h>
+#include <STM32Ethernet.h>
 #include "WebServer.h"
+
+
 
 
 /* #############################################################################################################################################################
@@ -82,7 +85,7 @@ For more informations about EEPROMAnything.h look at http://playground.arduino.c
 #include <EEPROM.h>
 #include "EEPROMAnything.h"
 
-#define RESET_PIN 40	//Connect a button to this PIN. If the button is hold, an the device is turned on the default ethernet settings are restored.
+#define RESET_PIN 3	//Connect a button to this PIN. If the button is hold, an the device is turned on the default ethernet settings are restored.
 
 /* structure which is stored in the eeprom. 
 * Look at "EEPROMAnything.h" for the functions storing and reading the struct
@@ -123,14 +126,14 @@ void set_EEPROM_Default() {
     // set the default IP address for the arduino. In this case its 192.168.0.111
     eeprom_config.ip[0]=192;
     eeprom_config.ip[1]=168;
-    eeprom_config.ip[2]=0;
-    eeprom_config.ip[3]=111;
+    eeprom_config.ip[2]=1;
+    eeprom_config.ip[3]=39;
   
     // set the default GATEWAY. In this case its 192.168.0.254
     eeprom_config.gateway[0]=192;
     eeprom_config.gateway[1]=168;
-    eeprom_config.gateway[2]=0;
-    eeprom_config.gateway[3]=254;
+    eeprom_config.gateway[2]=1;
+    eeprom_config.gateway[3]=1;
     
     // set the default SUBNET. In this case its 255.255.255.0
     eeprom_config.subnet[0]=255;
@@ -141,8 +144,8 @@ void set_EEPROM_Default() {
     // set the default DNS SERVER. In this case its 192.168.0.254
     eeprom_config.dns_server[0]=192;
     eeprom_config.dns_server[1]=168;
-    eeprom_config.dns_server[2]=0;
-    eeprom_config.dns_server[3]=254;
+    eeprom_config.dns_server[2]=1;
+    eeprom_config.dns_server[3]=1;
 
     // set the default Webserver Port. In this case its Port 80
     eeprom_config.webserverPort=80;
@@ -685,9 +688,9 @@ void setupNetHTML(WebServer &server, WebServer::ConnectionType type, char *url_t
 
   server.printP(table_tr_start);
   server.printP(table_td_start);
-  server.printP(RAM_1);	
-  server.print(sys.ramFree());
-  server.printP(RAM_2);
+  //server.printP(RAM_1);	
+ // server.print(sys.ramFree());
+ // server.printP(RAM_2);
   server.print(sys.ramSize());
   server.printP(table_td_end);
   server.printP(table_tr_end); 
@@ -761,6 +764,8 @@ void setup()
 
   /* start the webserver */
   webserver->begin();
+ // Serial.print("Web server is at "); 
+ // Serial.println(Ethernet.localIP());
 }
 
 /**

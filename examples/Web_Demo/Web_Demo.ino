@@ -1,42 +1,47 @@
 /* Web_Demo.pde -- sample code for Webduino server library */
 
 /*
- * To use this demo,  enter one of the following USLs into your browser.
- * Replace "host" with the IP address assigned to the Arduino.
- *
- * http://host/
- * http://host/json
- *
- * This URL brings up a display of the values READ on digital pins 0-9
- * and analog pins 0-5.  This is done with a call to defaultCmd.
- * 
- * 
- * http://host/form
- *
- * This URL also brings up a display of the values READ on digital pins 0-9
- * and analog pins 0-5.  But it's done as a form,  by the "formCmd" function,
- * and the digital pins are shown as radio buttons you can change.
- * When you click the "Submit" button,  it does a POST that sets the
- * digital pins,  re-reads them,  and re-displays the form.
- * 
- */
+   To use this demo,  enter one of the following USLs into your browser.
+   Replace "host" with the IP address assigned to the Arduino.
 
-#include "SPI.h"
-#include "Ethernet.h"
+   http://host/
+   http://host/json
+
+   This URL brings up a display of the values READ on digital pins 0-9
+   and analog pins 0-5.  This is done with a call to defaultCmd.
+
+
+   http://host/form
+
+   This URL also brings up a display of the values READ on digital pins 0-9
+   and analog pins 0-5.  But it's done as a form,  by the "formCmd" function,
+   and the digital pins are shown as radio buttons you can change.
+   When you click the "Submit" button,  it does a POST that sets the
+   digital pins,  re-reads them,  and re-displays the form.
+
+*/
+
+#include <LwIP.h>
+#include <STM32Ethernet.h>
 #include "WebServer.h"
 
-// no-cost stream operator as described at 
-// http://sundial.org/arduino/?page_id=119
-template<class T>
-inline Print &operator <<(Print &obj, T arg)
-{ obj.print(arg); return obj; }
+
+
+// no-cost stream operator as described at http://arduiniana.org/libraries/streaming/
+template<class T> inline Print &operator <<(Print &obj, T arg)  
+{
+ obj.print(arg);
+ return obj;
+}
+
+
 
 
 // CHANGE THIS TO YOUR OWN UNIQUE VALUE
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // CHANGE THIS TO MATCH YOUR HOST NETWORK
-static uint8_t ip[] = { 192, 168, 1, 210 };
+//IPAddress ip(192, 168, 1, 177);
 
 #define PREFIX ""
 
@@ -55,11 +60,11 @@ void jsonCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, 
 
   //server.httpSuccess(false, "application/json");
   server.httpSuccess("application/json");
-  
+
   if (type == WebServer::HEAD)
     return;
 
-  int i;    
+  int i;
   server << "{ ";
   for (i = 0; i <= 9; ++i)
   {
@@ -75,7 +80,7 @@ void jsonCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, 
     if (i != 5)
       server << ", ";
   }
-  
+
   server << " }";
 }
 
@@ -162,19 +167,23 @@ void formCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, 
 
 void defaultCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
-  outputPins(server, type, false);  
+  outputPins(server, type, false);
 }
 
 void setup()
 {
+  Serial.begin(9600);
   // set pins 0-8 for digital input
-  for (int i = 0; i <= 9; ++i)
+  for (int i = 0; i <= 9; ++i){
     pinMode(i, INPUT);
+  }
   pinMode(9, OUTPUT);
 
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac);
+  //Ethernet.begin(mac, ip);
   webserver.begin();
-
+  Serial.print("Web server is at ");
+  Serial.println(Ethernet.localIP());
   webserver.setDefaultCommand(&defaultCmd);
   webserver.addCommand("json", &jsonCmd);
   webserver.addCommand("form", &formCmd);

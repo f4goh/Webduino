@@ -23,7 +23,7 @@ public:
   * Returns the free RAM
   * @return int: free RAM
   */ 
-  int ramFree();
+ //int ramFree();
   
   /**
   * Returns the size of the RAM

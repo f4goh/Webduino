@@ -1,8 +1,11 @@
 /* Web_HelloWorld.pde - very simple Webduino example */
 
-#include "SPI.h"
-#include "Ethernet.h"
+
+#include <LwIP.h>
+#include <STM32Ethernet.h>
 #include "WebServer.h"
+
+
 
 /* CHANGE THIS TO YOUR OWN UNIQUE VALUE.  The MAC number should be
  * different from any other devices on your network or you'll have
@@ -14,7 +17,8 @@ static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
  * the 192.168.0.XXX or 192.168.1.XXX subrange.  Pick an address
  * that's not in use and isn't going to be automatically allocated by
  * DHCP from your router. */
-static uint8_t ip[] = { 192, 168, 1, 210 };
+
+//IPAddress ip(192, 168, 1, 177);
 
 /* This creates an instance of the webserver.  By specifying a prefix
  * of "", all pages will be at the root of the server. */
@@ -39,16 +43,19 @@ void helloCmd(WebServer &server, WebServer::ConnectionType type, char *, bool)
      * amount of RAM. */
     P(helloMsg) = "<h1>Hello, World!</h1>";
 
-    /* this is a special form of print that outputs from PROGMEM */
+     /* this is a special form of print that outputs from PROGMEM */
     server.printP(helloMsg);
   }
 }
 
 void setup()
 {
+   Serial.begin(9600);
+    
   /* initialize the Ethernet adapter */
-  Ethernet.begin(mac, ip);
-
+  Ethernet.begin(mac);
+ //Ethernet.begin(mac, ip);
+ 
   /* setup our default command that will be run when the user accesses
    * the root page on the server */
   webserver.setDefaultCommand(&helloCmd);
@@ -59,6 +66,8 @@ void setup()
 
   /* start the webserver */
   webserver.begin();
+  Serial.print("Web server is at "); 
+  Serial.println(Ethernet.localIP());
 }
 
 void loop()
